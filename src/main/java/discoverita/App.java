@@ -1,8 +1,10 @@
 package discoverita;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.Query;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -10,6 +12,7 @@ import javax.persistence.Persistence;
 import discoverita.jpa.Student;
 import discoverita.jpa.granilarity.embedded.Address;
 import discoverita.jpa.granilarity.embedded.User;
+import discoverita.jpa.granilarity.single.entity.many.tables.Professor;
 import discoverita.jpa.manytomany.unidirectional.Author;
 import discoverita.jpa.manytomany.unidirectional.Book;
 import discoverita.jpa.onetomany.Company;
@@ -34,8 +37,10 @@ public class App {
 		app.createCompany();
 
 		app.createBooks();
-		
+
 		app.createUser();
+		
+		app.createProfessorAndAddress("Georgi", "Gurko", "Sofia", "Sofia", "1000");
 
 	}
 
@@ -124,8 +129,8 @@ public class App {
 			entityManager.getTransaction().rollback();
 		}
 	}
-	
-	public User createUser () {
+
+	public User createUser() {
 		User user = new User();
 		Address address = new Address();
 		address.setCity("Sofia");
@@ -142,6 +147,35 @@ public class App {
 			entityManager.getTransaction().rollback();
 		}
 		return user;
+	}
+
+	public Professor createProfessorAndAddress(String name, String street, String city, String state,
+			String zip) {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+		Professor emp = new Professor();
+		try {
+
+			entityManager.getTransaction().begin();
+			
+			emp.setName(name);
+			emp.setStreet(street);
+			emp.setCity(city);
+			emp.setState(state);
+			emp.setZip(zip);
+			entityManager.persist(emp);
+			entityManager.getTransaction().commit();
+		} catch (Exception e) {
+			entityManager.getTransaction().rollback();
+		}
+		
+
+		return emp;
+	}
+
+	public Collection<Professor> findAllProfessors() {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+		Query query = entityManager.createQuery("SELECT e FROM Professor e");
+		return (Collection<Professor>) query.getResultList();
 	}
 
 }
