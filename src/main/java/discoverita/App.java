@@ -4,15 +4,24 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.Query;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.persistence.Query;
 
 import discoverita.jpa.Student;
 import discoverita.jpa.granilarity.embedded.Address;
 import discoverita.jpa.granilarity.embedded.User;
 import discoverita.jpa.granilarity.single.entity.many.tables.Professor;
+import discoverita.jpa.hierarchy.singletable.Contractor;
+import discoverita.jpa.hierarchy.singletable.RegularWorker;
+import discoverita.jpa.hierarchy.singletable.Worker;
+import discoverita.jpa.hierarchy.tableperclass.ContractorTpC;
+import discoverita.jpa.hierarchy.tableperclass.RegularWorkerTpC;
+import discoverita.jpa.hierarchy.tableperclass.WorkerTpC;
+import discoverita.jpa.hierarchy.tablepersubclass.ContractorTpSC;
+import discoverita.jpa.hierarchy.tablepersubclass.RegularWorkerTpSC;
+import discoverita.jpa.hierarchy.tablepersubclass.WorkerTpSC;
 import discoverita.jpa.manytomany.unidirectional.Author;
 import discoverita.jpa.manytomany.unidirectional.Book;
 import discoverita.jpa.onetomany.Company;
@@ -39,8 +48,87 @@ public class App {
 		app.createBooks();
 
 		app.createUser();
-		
+
 		app.createProfessorAndAddress("Georgi", "Gurko", "Sofia", "Sofia", "1000");
+
+		app.createEmployeeHierarchySingleTable();
+		
+		app.createEmployeeHierarchyTablePerClass();
+		
+		app.createEmployeeHierarchyTablePerSubClass();
+
+	}
+
+	private void createEmployeeHierarchyTablePerSubClass() {
+		WorkerTpSC e1 = new WorkerTpSC();
+		e1.setName("sonoo");
+
+		RegularWorkerTpSC e2 = new RegularWorkerTpSC();
+		e2.setName("Vivek Kumar");
+		e2.setSalary(50000);
+		e2.setBonus(5);
+
+		ContractorTpSC e3 = new ContractorTpSC();
+		e3.setName("Arjun Kumar");
+		e3.setPay_per_hour(1000);
+		e3.setContract_duration("15 hours");
+
+		persistObjects(e1, e2, e3);
+		
+	}
+
+	private void createEmployeeHierarchyTablePerClass() {
+		WorkerTpC e1 = new WorkerTpC();
+		e1.setName("sonoo");
+
+		RegularWorkerTpC e2 = new RegularWorkerTpC();
+		e2.setName("Vivek Kumar");
+		e2.setSalary(50000);
+		e2.setBonus(5);
+
+		ContractorTpC e3 = new ContractorTpC();
+		e3.setName("Arjun Kumar");
+		e3.setPay_per_hour(1000);
+		e3.setContract_duration("15 hours");
+
+		persistObjects(e1, e2, e3);
+		
+	}
+
+	private void createEmployeeHierarchySingleTable() {
+		Worker e1 = new Worker();
+		e1.setName("sonoo");
+
+		RegularWorker e2 = new RegularWorker();
+		e2.setName("Vivek Kumar");
+		e2.setSalary(50000);
+		e2.setBonus(5);
+
+		Contractor e3 = new Contractor();
+		e3.setName("Arjun Kumar");
+		e3.setPay_per_hour(1000);
+		e3.setContract_duration("15 hours");
+
+		persistObjects(e1, e2, e3);
+
+	}
+
+	private void persistObjects(Object... objects) {
+
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+		try {
+
+			entityManager.getTransaction().begin();
+			for (Object o : objects) {
+				entityManager.persist(o);
+			}
+
+			entityManager.getTransaction().commit();
+		} catch (Exception e) {
+			entityManager.getTransaction().rollback();
+		} finally {
+			entityManager.close();
+		}
 
 	}
 
@@ -149,14 +237,13 @@ public class App {
 		return user;
 	}
 
-	public Professor createProfessorAndAddress(String name, String street, String city, String state,
-			String zip) {
+	public Professor createProfessorAndAddress(String name, String street, String city, String state, String zip) {
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 		Professor emp = new Professor();
 		try {
 
 			entityManager.getTransaction().begin();
-			
+
 			emp.setName(name);
 			emp.setStreet(street);
 			emp.setCity(city);
@@ -167,7 +254,6 @@ public class App {
 		} catch (Exception e) {
 			entityManager.getTransaction().rollback();
 		}
-		
 
 		return emp;
 	}
