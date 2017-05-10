@@ -2,12 +2,15 @@ package discoverita;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.ParameterMode;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
+import javax.persistence.StoredProcedureQuery;
 
 import discoverita.jpa.Student;
 import discoverita.jpa.granilarity.embedded.Address;
@@ -56,7 +59,32 @@ public class App {
 		app.createEmployeeHierarchyTablePerClass();
 		
 		app.createEmployeeHierarchyTablePerSubClass();
+		
+		app.callProcedure("empLikeName", "g");
 
+	}
+
+	private void callProcedure(String procName, String likeName) {
+
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+		try {
+
+			entityManager.getTransaction().begin();
+			StoredProcedureQuery empLikeName = entityManager.createStoredProcedureQuery(procName, Professor.class);
+			empLikeName.registerStoredProcedureParameter(1, String.class, ParameterMode.IN);
+			empLikeName.setParameter(1, likeName);
+			List<Professor> profesorsLineName = empLikeName.getResultList();
+			System.out.println("#################    Profesors with names like " + likeName + " ##########################" );
+			System.out.println(profesorsLineName);
+
+			entityManager.getTransaction().commit();
+		} catch (Exception e) {
+			entityManager.getTransaction().rollback();
+			throw e;
+		} finally {
+			entityManager.close();
+		}
+		
 	}
 
 	private void createEmployeeHierarchyTablePerSubClass() {
