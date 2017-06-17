@@ -32,7 +32,7 @@ import discoverita.jpa.onetomany.Employee;
 
 public class App {
 
-	public static EntityManagerFactory entityManagerFactory;
+	private static EntityManagerFactory entityManagerFactory;
 
 	public static void main(String[] args) {
 		try {
@@ -59,8 +59,10 @@ public class App {
 		app.createEmployeeHierarchyTablePerClass();
 		
 		app.createEmployeeHierarchyTablePerSubClass();
+
+		//System.out.println(app.findAllProfessors());
 		
-		app.callProcedure("empLikeName", "g");
+		//app.callProcedure("empLikeName", "g");
 
 	}
 
@@ -80,7 +82,7 @@ public class App {
 			entityManager.getTransaction().commit();
 		} catch (Exception e) {
 			entityManager.getTransaction().rollback();
-			throw e;
+			throw new RuntimeException(e);
 		} finally {
 			entityManager.close();
 		}
@@ -286,10 +288,10 @@ public class App {
 		return emp;
 	}
 
-	public Collection<Professor> findAllProfessors() {
-		EntityManager entityManager = entityManagerFactory.createEntityManager();
-		Query query = entityManager.createQuery("SELECT e FROM Professor e");
-		return (Collection<Professor>) query.getResultList();
-	}
+//	public Collection<Professor> findAllProfessors() {
+//		EntityManager entityManager = entityManagerFactory.createEntityManager();
+//		Query query = entityManager.createQuery("SELECT e FROM Professor e");
+//		return (Collection<Professor>) query.getResultList();
+//	}
 
 }
